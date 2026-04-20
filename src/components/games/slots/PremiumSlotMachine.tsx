@@ -238,7 +238,7 @@ function SlotCabinet({
   return (
     <group ref={cabinetRef}>
       {/* Main cabinet body with premium materials */}
-      <RoundedBox args={[10, 8, 3, 4, 0.3]} position={[0, 0, -1.5]} castShadow receiveShadow>
+      <RoundedBox args={[10, 8, 3, 4, 0.3] as any} position={[0, 0, -1.5]} castShadow receiveShadow>
         <meshStandardMaterial 
           color="#1a0a2e" 
           metalness={0.8} 
@@ -258,7 +258,7 @@ function SlotCabinet({
 
       {/* Top banner with animated lights */}
       <group position={[0, 4.5, 0]}>
-        <RoundedBox args={[9, 1.5, 0.8, 4, 0.1]} castShadow>
+        <RoundedBox args={[9, 1.5, 0.8, 4, 0.1] as any} castShadow>
           <meshStandardMaterial 
             color="#0a0a1a" 
             metalness={0.9} 
@@ -297,7 +297,7 @@ function SlotCabinet({
       {/* Reels window frame */}
       <group position={[0, 0.5, 0.5]}>
         {/* Chrome frame */}
-        <RoundedBox args={[8.5, 5, 0.3, 4, 0.1]} position={[0, 0, 0.2]}>
+        <RoundedBox args={[8.5, 5, 0.3, 4, 0.1] as any} position={[0, 0, 0.2]}>
           <meshStandardMaterial color="#c0c0c0" metalness={1} roughness={0.1} />
         </RoundedBox>
         
@@ -368,7 +368,7 @@ function SlotCabinet({
 
       {/* Control panel */}
       <group position={[0, -3.5, 0.5]}>
-        <RoundedBox args={[9, 2, 0.5, 4, 0.1]} castShadow>
+        <RoundedBox args={[9, 2, 0.5, 4, 0.1] as any} castShadow>
           <meshStandardMaterial 
             color="#0a0a1a" 
             metalness={0.9} 

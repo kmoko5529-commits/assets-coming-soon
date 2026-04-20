@@ -176,7 +176,7 @@ export async function lazyLoadTexture(
           url,
           (texture) => {
             texture.anisotropy = anisotropy;
-            texture.encoding = THREE.sRGBEncoding;
+            (texture as unknown as { colorSpace: string }).colorSpace = 'srgb';
             texture.needsUpdate = true;
             resolve(texture);
           },
@@ -397,7 +397,10 @@ export function requestIdleCallback(
   }
   
   // Fallback for browsers without requestIdleCallback
-  return (typeof window !== 'undefined' ? window.setTimeout(callback, options?.timeout || 1) : 0) as unknown as number;
+  if (typeof window !== 'undefined') {
+    return window.setTimeout(callback, options?.timeout || 1) as unknown as number;
+  }
+  return 0;
 }
 
 export function cancelIdleCallback(id: number): void {
