@@ -310,7 +310,6 @@ export default function CrashGame3D() {
         amount={myBet?.cashout_multiplier ? parseFloat(betAmount) * myBet.cashout_multiplier : 0}
         currency={selectedCurrency}
       />
-      {void crashPoint}
 
       {/* Settings Modal */}
       <AnimatePresence>
