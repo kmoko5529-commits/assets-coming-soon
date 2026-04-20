@@ -398,7 +398,7 @@ export function requestIdleCallback(
   
   // Fallback for browsers without requestIdleCallback
   if (typeof window !== 'undefined') {
-    return window.setTimeout(callback, options?.timeout || 1) as unknown as number;
+    return (window as Window).setTimeout(callback, options?.timeout || 1) as unknown as number;
   }
   return 0;
 }
