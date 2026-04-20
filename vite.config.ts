@@ -4,8 +4,10 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
+// Plain Vite SPA - no TanStack Start
 export default defineConfig(({ mode }) => ({
   base: './',
+  appType: 'spa',
   server: {
     host: "::",
     port: 8080,
