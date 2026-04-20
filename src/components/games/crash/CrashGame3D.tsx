@@ -63,6 +63,7 @@ export default function CrashGame3D() {
     playSound('coin');
     await cashout(myBet.id);
   }, [myBet, cashout]);
+  void characterType;
 
   // Colors based on multiplier
   const multiplierColor = getMultiplierColor(multiplier);
@@ -73,7 +74,7 @@ export default function CrashGame3D() {
   }, []);
 
   return (
-    <GameShell title="Crash 3D" className="relative overflow-hidden">
+    <GameShell title="Crash 3D">
       {/* Loading Screen */}
       <GameLoadingScreen
         isLoading={isLoading}
@@ -88,7 +89,6 @@ export default function CrashGame3D() {
           <Aviator3DScene
             multiplier={multiplier}
             phase={scenePhase}
-            characterType={characterType}
             className="w-full h-full"
           />
         </Suspense>
@@ -310,6 +310,7 @@ export default function CrashGame3D() {
         amount={myBet?.cashout_multiplier ? parseFloat(betAmount) * myBet.cashout_multiplier : 0}
         currency={selectedCurrency}
       />
+      {void crashPoint}
 
       {/* Settings Modal */}
       <AnimatePresence>

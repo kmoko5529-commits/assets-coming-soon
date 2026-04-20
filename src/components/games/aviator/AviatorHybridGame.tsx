@@ -8,7 +8,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Aviator3DScene from './Aviator3DScene';
-import { crash } from '@/lib/sounds';
+import { crash, playSound } from '@/lib/sounds';
 
 type GamePhase = 'waiting' | 'running' | 'crashed' | 'cashed_out';
 

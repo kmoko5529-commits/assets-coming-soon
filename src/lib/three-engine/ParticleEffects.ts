@@ -123,7 +123,7 @@ class ParticleEffectsClass {
     this.materials.set(id, material);
 
     // Store config for updates
-    (points as unknown as THREE.Points & { _config: ParticleConfig })._config = {
+    (points as unknown as { _config: ParticleConfig })._config = {
       ...config,
       gravity,
       friction,
@@ -131,7 +131,7 @@ class ParticleEffectsClass {
       fadeOut,
     };
 
-    return points;
+    return points as unknown as THREE.Points;
   }
 
   emitBurst(id: string, position: THREE.Vector3, count: number = 50): void {

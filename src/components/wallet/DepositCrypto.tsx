@@ -41,14 +41,14 @@ export default function DepositCrypto() {
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return toast({ title: 'Invalid amount', variant: 'destructive' });
     setSubmitting(true);
-    const { error } = await supabase.from('deposit_requests').insert({
+    const { error } = await supabase.from('deposit_requests').insert([{
       user_id: user!.id,
       method: 'crypto',
       currency: 'USD',
       amount: amt,
       crypto_currency: code,
       tx_hash: txHash || null,
-    });
+    }]);
     setSubmitting(false);
     if (error) return toast({ title: 'Error', description: error.message, variant: 'destructive' });
     toast({ title: 'Deposit submitted', description: 'Pending admin approval.' });

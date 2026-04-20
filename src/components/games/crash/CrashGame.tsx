@@ -269,7 +269,6 @@ export default function CrashGame() {
           <Aviator3DScene
             multiplier={multiplier}
             phase={canvasPhase}
-            characterType={characterType}
             className="absolute inset-0"
           />
         </Suspense>

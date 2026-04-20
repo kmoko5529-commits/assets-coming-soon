@@ -335,7 +335,7 @@ class AssetManager {
   unloadCategory(category: string): void {
     const keysToRemove: string[] = [];
 
-    Object.entries(ASSET_REGISTRY).forEach(([key, def]) => {
+    (Object.entries(ASSET_REGISTRY) as Array<[string, AssetDefinition]>).forEach(([key, def]) => {
       if (def.category === category) {
         keysToRemove.push(key);
       }

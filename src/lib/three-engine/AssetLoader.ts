@@ -114,7 +114,7 @@ class AssetLoaderClass {
   }
 
   async loadTexture(
-    id: string, 
+    id: string,
     url: string,
     options?: {
       flipY?: boolean;
