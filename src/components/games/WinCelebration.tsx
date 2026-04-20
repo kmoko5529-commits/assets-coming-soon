@@ -6,7 +6,7 @@ import { getMultiplierColor } from '@/lib/animations';
 interface WinCelebrationProps {
   show: boolean;
   amount: number;
-  currency: string;
+  currency?: string;
   multiplier?: number;
   big?: boolean;
 }
@@ -19,7 +19,7 @@ const COLORS = [
   'var(--neon-red-hex)',
 ];
 
-export default function WinCelebration({ show, amount, currency, multiplier, big }: WinCelebrationProps) {
+export default function WinCelebration({ show, amount, currency = 'USD', multiplier, big }: WinCelebrationProps) {
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; color: string }>>([]);
 
   useEffect(() => {

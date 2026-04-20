@@ -176,7 +176,7 @@ export const playHaptic = {
       setTimeout(() => haptic('reel-stop'), index * 50);
     },
     win: (tier: 'tiny' | 'small' | 'medium' | 'big' | 'huge' | 'jackpot') => {
-      haptic(`win-${tier}`);
+      haptic(tier === 'jackpot' ? 'jackpot' : (`win-${tier}` as HapticPattern));
     },
     cascade: () => haptic('cascade'),
     multiplier: () => haptic('multiplier'),

@@ -19,18 +19,19 @@ import ProvablyFairButton from '@/components/provably-fair/ProvablyFairButton';
 
 interface GameShellProps {
   title: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   children: ReactNode;
-  betAmount: string;
-  setBetAmount: (v: string) => void;
-  onPlay: () => Promise<void>;
-  playing: boolean;
+  betAmount?: string;
+  setBetAmount?: (v: string) => void;
+  onPlay?: () => Promise<void>;
+  playing?: boolean;
   disabled?: boolean;
   playLabel?: string;
   extraControls?: ReactNode;
   history?: ReactNode;
   stats?: ReactNode;
   gameId?: string;
+  className?: string;
 }
 
 export default function GameShell({

@@ -439,6 +439,8 @@ interface Aviator3DSceneProps {
   multiplier: number;
   phase: 'waiting' | 'running' | 'crashed' | 'cashed_out';
   className?: string;
+  /** Optional skin — currently visual-only, accepted so callers can pass it without TS errors. */
+  characterType?: 'airplane' | 'astronaut';
 }
 
 export default function Aviator3DScene({ multiplier, phase, className = '' }: Aviator3DSceneProps) {

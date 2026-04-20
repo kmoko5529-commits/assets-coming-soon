@@ -278,7 +278,14 @@ const legacy: Record<string, () => void> = {
   win: games.win,
   lose: games.lose,
   jackpot: games.jackpot,
+  // Aliases used by the crash/aviator game family.
+  crash: games.crashBust ?? games.crashTakeoff ?? games.coin,
+  bust: games.crashBust ?? games.coin,
 };
+
+// Named export so callers can do `import { crash } from '@/lib/sounds'`.
+export const crash = () => playSound('crash');
+export const bust = () => playSound('bust');
 
 // Sync with app-store
 export function setSoundEnabled(v: boolean) {
