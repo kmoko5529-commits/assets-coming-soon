@@ -393,13 +393,20 @@ function SceneContent({
   onTileClick?: (x: number, z: number) => void;
 }) {
   const tiles = useMemo(() => {
-    const result = [];
+    const result: Array<{
+      position: [number, number, number];
+      revealed: boolean;
+      hasGem: boolean | undefined;
+      hasMine: boolean | undefined;
+      x: number;
+      z: number;
+    }> = [];
     const offset = (gridSize - 1) / 2;
     for (let x = 0; x < gridSize; x++) {
       for (let z = 0; z < gridSize; z++) {
         const revealed = revealedTiles.find(t => t.x === x && t.z === z);
         result.push({
-          position: [(x - offset) * 1.1, 0, (z - offset) * 1.1] as [number, number, number],
+          position: [(x - offset) * 1.1, 0, (z - offset) * 1.1],
           revealed: !!revealed,
           hasGem: revealed?.hasGem,
           hasMine: revealed?.hasMine,

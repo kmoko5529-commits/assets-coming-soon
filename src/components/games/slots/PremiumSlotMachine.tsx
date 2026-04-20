@@ -132,7 +132,7 @@ function Reel({
 
   // Create visible symbols with proper spacing
   const visibleSymbols = useMemo(() => {
-    const result = [];
+    const result: Array<(typeof symbols)[number]> = [];
     for (let i = 0; i < 30; i++) {
       result.push(symbols[i % symbols.length]);
     }

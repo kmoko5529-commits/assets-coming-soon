@@ -143,13 +143,18 @@ function UltraKenoBoard({
   onNumberSelect?: (num: number) => void;
 }) {
   const balls = useMemo(() => {
-    const result = [];
+    const result: Array<{
+      number: number;
+      position: [number, number, number];
+      selected: boolean | undefined;
+      drawn: boolean | undefined;
+    }> = [];
     for (let i = 1; i <= 40; i++) {
       const row = Math.floor((i - 1) / 8);
       const col = (i - 1) % 8;
       result.push({
         number: i,
-        position: [(col - 3.5) * 0.9, (2.5 - row) * 0.9, 0] as [number, number, number],
+        position: [(col - 3.5) * 0.9, (2.5 - row) * 0.9, 0],
         selected: selectedNumbers?.includes(i),
         drawn: drawnNumbers?.includes(i)
       });

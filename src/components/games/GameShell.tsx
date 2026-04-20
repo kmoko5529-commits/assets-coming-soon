@@ -35,7 +35,7 @@ interface GameShellProps {
 }
 
 export default function GameShell({
-  title, icon, children, betAmount, setBetAmount,
+  title, icon, children, betAmount = '', setBetAmount,
   onPlay, playing, disabled, playLabel, extraControls, history, stats, gameId,
 }: GameShellProps) {
   const params = useParams<{ slug: string }>();
@@ -73,6 +73,9 @@ export default function GameShell({
       playSound('error');
       toast.error('Insufficient balance', { description: `You have ${balance.balance.toFixed(2)} ${selectedCurrency}, bet is ${bet.toFixed(2)}.` });
       triggerShake();
+      return;
+    }
+    if (!onPlay) {
       return;
     }
     playSound('bet');
@@ -133,7 +136,7 @@ export default function GameShell({
               <input
                 type="number"
                 value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value)}
+                onChange={(e) => setBetAmount?.(e.target.value)}
                 className={`w-full px-3 py-3 rounded-lg bg-void border text-foreground font-mono text-base focus:outline-none transition-colors ${overBalance ? 'border-rose-500/60' : 'border-border focus:border-primary'}`}
                 min={0.01}
                 step="0.01"
@@ -147,7 +150,7 @@ export default function GameShell({
               {quickAmounts.map((amt) => (
                 <button
                   key={amt}
-                  onClick={() => { setBetAmount(String(amt)); playSound('click'); }}
+                  onClick={() => { setBetAmount?.(String(amt)); playSound('click'); }}
                   disabled={playing}
                   className="py-1.5 rounded-lg text-xs font-mono font-bold bg-void border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors disabled:opacity-50"
                 >
@@ -157,17 +160,17 @@ export default function GameShell({
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => { setBetAmount(String(Math.max(0.01, parseFloat(betAmount || '0') / 2).toFixed(2))); playSound('click'); }}
+                onClick={() => { setBetAmount?.(String(Math.max(0.01, parseFloat(betAmount || '0') / 2).toFixed(2))); playSound('click'); }}
                 disabled={playing}
                 className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-void border border-border text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
               >½</button>
               <button
-                onClick={() => { setBetAmount(String((parseFloat(betAmount || '0') * 2).toFixed(2))); playSound('click'); }}
+                onClick={() => { setBetAmount?.(String((parseFloat(betAmount || '0') * 2).toFixed(2))); playSound('click'); }}
                 disabled={playing}
                 className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-void border border-border text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
               >2×</button>
               <button
-                onClick={() => { if (balance) setBetAmount(String(balance.balance.toFixed(2))); playSound('click'); }}
+                onClick={() => { if (balance) setBetAmount?.(String(balance.balance.toFixed(2))); playSound('click'); }}
                 disabled={playing}
                 className="flex-1 py-1.5 rounded-lg text-xs font-bold bg-void border border-border text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
               >Max</button>

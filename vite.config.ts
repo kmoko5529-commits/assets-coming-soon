@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
-// Plain Vite SPA - no TanStack Start (restart marker v3)
+// Vite app with manual TanStack router bootstrap (restart marker v5)
 export default defineConfig(({ mode }) => ({
   base: './',
   appType: 'spa',
