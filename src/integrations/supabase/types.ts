@@ -96,11 +96,11 @@ export type Database = {
         Row: {
           auto_cashout: number | null
           bet_amount: number
-          cashout_multiplier: number | null
+          cashed_out_at_multiplier: number | null
           created_at: string
           game_type: string
           id: string
-          payout: number
+          payout: number | null
           round_id: string
           status: string
           updated_at: string
@@ -109,11 +109,11 @@ export type Database = {
         Insert: {
           auto_cashout?: number | null
           bet_amount: number
-          cashout_multiplier?: number | null
+          cashed_out_at_multiplier?: number | null
           created_at?: string
-          game_type: string
+          game_type?: string
           id?: string
-          payout?: number
+          payout?: number | null
           round_id: string
           status?: string
           updated_at?: string
@@ -122,11 +122,11 @@ export type Database = {
         Update: {
           auto_cashout?: number | null
           bet_amount?: number
-          cashout_multiplier?: number | null
+          cashed_out_at_multiplier?: number | null
           created_at?: string
           game_type?: string
           id?: string
-          payout?: number
+          payout?: number | null
           round_id?: string
           status?: string
           updated_at?: string
@@ -191,45 +191,48 @@ export type Database = {
         Row: {
           amount: number
           created_at: string | null
+          crypto_address: string | null
           crypto_currency: string | null
-          currency: string | null
+          currency: string
           id: string
           method: string
           notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
-          txid: string | null
+          tx_hash: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           amount: number
           created_at?: string | null
+          crypto_address?: string | null
           crypto_currency?: string | null
-          currency?: string | null
+          currency?: string
           id?: string
           method: string
           notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
-          txid?: string | null
+          tx_hash?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           amount?: number
           created_at?: string | null
+          crypto_address?: string | null
           crypto_currency?: string | null
-          currency?: string | null
+          currency?: string
           id?: string
           method?: string
           notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
-          txid?: string | null
+          tx_hash?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -376,6 +379,78 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_intents: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          external_id: string | null
+          id: string
+          metadata: Json | null
+          provider: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          external_id?: string | null
+          id?: string
+          metadata?: Json | null
+          provider: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          external_id?: string | null
+          id?: string
+          metadata?: Json | null
+          provider?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_stats: {
         Row: {
           id: string
@@ -433,6 +508,143 @@ export type Database = {
         }
         Relationships: []
       }
+      promotions: {
+        Row: {
+          bonus_amount: number | null
+          bonus_type: string | null
+          code: string
+          created_at: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean | null
+          starts_at: string | null
+          title: string
+        }
+        Insert: {
+          bonus_amount?: number | null
+          bonus_type?: string | null
+          code: string
+          created_at?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          starts_at?: string | null
+          title: string
+        }
+        Update: {
+          bonus_amount?: number | null
+          bonus_type?: string | null
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          starts_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code: string
+          created_at: string | null
+          id: string
+          referred_id: string | null
+          referrer_id: string
+          total_clicks: number | null
+          total_commission: number | null
+          total_signups: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          id?: string
+          referred_id?: string | null
+          referrer_id: string
+          total_clicks?: number | null
+          total_commission?: number | null
+          total_signups?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          id?: string
+          referred_id?: string | null
+          referrer_id?: string
+          total_clicks?: number | null
+          total_commission?: number | null
+          total_signups?: number | null
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          created_at: string | null
+          id: string
+          priority: string | null
+          status: string | null
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ticket_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_admin: boolean | null
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_admin?: boolean | null
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_admin?: boolean | null
+          message?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -465,6 +677,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_promotions: {
+        Row: {
+          claimed_at: string | null
+          id: string
+          promotion_id: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          id?: string
+          promotion_id: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          id?: string
+          promotion_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_promotions_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -513,7 +754,7 @@ export type Database = {
           amount: number
           created_at: string | null
           crypto_currency: string | null
-          currency: string | null
+          currency: string
           destination: string
           id: string
           method: string
@@ -521,6 +762,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
+          tx_hash: string | null
           updated_at: string | null
           user_id: string
         }
@@ -528,7 +770,7 @@ export type Database = {
           amount: number
           created_at?: string | null
           crypto_currency?: string | null
-          currency?: string | null
+          currency?: string
           destination: string
           id?: string
           method: string
@@ -536,6 +778,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          tx_hash?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -543,7 +786,7 @@ export type Database = {
           amount?: number
           created_at?: string | null
           crypto_currency?: string | null
-          currency?: string | null
+          currency?: string
           destination?: string
           id?: string
           method?: string
@@ -551,6 +794,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          tx_hash?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -562,7 +806,6 @@ export type Database = {
     }
     Functions: {
       add_test_credit: { Args: { p_amount: number }; Returns: Json }
-      advance_crash_round: { Args: never; Returns: Json }
       approve_deposit: {
         Args: { p_note?: string; p_request_id: string }
         Returns: Json
@@ -571,13 +814,16 @@ export type Database = {
         Args: { p_note?: string; p_request_id: string }
         Returns: Json
       }
-      cashout_crash_bet: { Args: { p_bet_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      mark_withdrawal_paid: {
+        Args: { p_note?: string; p_request_id: string; p_tx_hash?: string }
+        Returns: Json
       }
       place_bet: {
         Args: {
@@ -589,15 +835,6 @@ export type Database = {
           p_payout?: number
           p_result?: Json
           p_server_seed?: string
-        }
-        Returns: Json
-      }
-      place_crash_bet: {
-        Args: {
-          p_auto_cashout?: number
-          p_bet_amount: number
-          p_game_type: string
-          p_round_id: string
         }
         Returns: Json
       }
