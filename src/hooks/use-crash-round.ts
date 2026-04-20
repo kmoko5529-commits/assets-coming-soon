@@ -122,7 +122,7 @@ export function useCrashRound({ gameType, userId }: UseCrashRoundOptions) {
         .eq('round_id', round.id);
       if (!cancelled && data) {
         // DB column is `cashed_out_at_multiplier`; client type uses `cashout_multiplier`.
-        const mapped = data.map((b) => ({
+        const mapped: CrashBet[] = data.map((b) => ({
           id: b.id,
           round_id: b.round_id,
           user_id: b.user_id,
@@ -132,7 +132,7 @@ export function useCrashRound({ gameType, userId }: UseCrashRoundOptions) {
           cashout_multiplier: b.cashed_out_at_multiplier != null ? Number(b.cashed_out_at_multiplier) : null,
           payout: Number(b.payout ?? 0),
           status: b.status as 'placed' | 'cashed' | 'lost',
-        })) as CrashBet[];
+        }));
         setBets(mapped);
       }
     };

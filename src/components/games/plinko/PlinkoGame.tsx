@@ -80,6 +80,7 @@ export default function PlinkoGame() {
     if (!playing && !result) return undefined;
     return new THREE.Vector3(0, ballY, 0);
   }, [playing, result, ballY]);
+  void ballPosition;
 
   const evPercent = useMemo(() => {
     const ev = MULTIPLIERS.reduce((s, m, i) => s + m * PROBS[i], 0);

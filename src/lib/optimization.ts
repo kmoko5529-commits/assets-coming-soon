@@ -2,7 +2,7 @@
  * Advanced Optimization Utilities
  * Deep lazy loading, async helpers, and performance optimizations
  */
-import * as React from 'react';
+import React from 'react';
 import * as THREE from 'three';
 
 // ============= ASSET LOADING CACHE =============
@@ -165,23 +165,23 @@ export async function lazyLoadTexture(
   }
 ): Promise<THREE.Texture> {
   const { anisotropy = 4, priority = 'low' } = options || {};
-  
+
   return loadAsset(
     `tex_${url}_${anisotropy}`,
     async () => {
       const textureLoader = new THREE.TextureLoader();
-      
-      return new Promise((resolve, reject) => {
+
+      return new Promise<THREE.Texture>((resolve, reject) => {
         textureLoader.load(
           url,
-          (texture) => {
+          (texture: THREE.Texture) => {
             texture.anisotropy = anisotropy;
             (texture as unknown as { colorSpace: string }).colorSpace = 'srgb';
             texture.needsUpdate = true;
             resolve(texture);
           },
           undefined,
-          reject
+          reject as (err: unknown) => void
         );
       });
     },
@@ -341,12 +341,12 @@ export function createLazyComponent<T extends React.ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   fallback?: React.ReactNode
 ): React.LazyExoticComponent<T> {
-  return React.lazy(() => 
-    importFn().catch((error) => {
+  return React.lazy(() =>
+    importFn().catch((error: unknown) => {
       console.error('Failed to load component:', error);
       // Return a fallback component
       return Promise.resolve({
-        default: (() => React.createElement('div', { className: 'flex items-center justify-center p-8 text-red-500' }, 'Failed to load component')) as any
+        default: (() => React.createElement('div', { className: 'flex items-center justify-center p-8 text-red-500' }, 'Failed to load component')) as unknown as T,
       });
     })
   );
@@ -398,7 +398,7 @@ export function requestIdleCallback(
   
   // Fallback for browsers without requestIdleCallback
   if (typeof window !== 'undefined') {
-    return (window as Window).setTimeout(callback, options?.timeout || 1) as unknown as number;
+    return (window as unknown as Window).setTimeout(callback, options?.timeout || 1) as unknown as number;
   }
   return 0;
 }

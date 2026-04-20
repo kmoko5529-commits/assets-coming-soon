@@ -43,14 +43,16 @@ export function useThreeScene(options: UseThreeSceneOptions = {}): UseThreeScene
     if (!canvasRef.current) return;
 
     // Create scene
+    const bg: string | THREE.Color =
+      typeof backgroundColor === 'number'
+        ? `#${(backgroundColor as number).toString(16).padStart(6, '0')}`
+        : (backgroundColor as string | THREE.Color);
     const sceneConfig: SceneConfig = {
       id,
       antialias,
       alpha,
       shadows,
-      backgroundColor: typeof backgroundColor === 'number'
-        ? `#${backgroundColor.toString(16).padStart(6, '0')}`
-        : backgroundColor,
+      backgroundColor: bg,
     };
 
     const newScene = sceneManager.createScene(sceneConfig);
