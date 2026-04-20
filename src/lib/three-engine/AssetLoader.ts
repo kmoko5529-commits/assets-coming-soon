@@ -118,7 +118,7 @@ class AssetLoaderClass {
     url: string,
     options?: {
       flipY?: boolean;
-      encoding?: THREE.TextureEncoding;
+      colorSpace?: string;
       generateMipmaps?: boolean;
     }
   ): Promise<THREE.Texture> {
@@ -137,7 +137,7 @@ class AssetLoaderClass {
         url,
         (texture) => {
           if (options?.flipY !== undefined) texture.flipY = options.flipY;
-          if (options?.encoding) texture.encoding = options.encoding;
+          if (options?.colorSpace) (texture as unknown as { colorSpace: string }).colorSpace = options.colorSpace;
           if (options?.generateMipmaps !== undefined) texture.generateMipmaps = options.generateMipmaps;
           
           texture.anisotropy = 16;

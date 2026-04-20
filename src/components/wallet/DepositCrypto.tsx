@@ -47,7 +47,7 @@ export default function DepositCrypto() {
       currency: 'USD',
       amount: amt,
       crypto_currency: code,
-      txid: txHash || null,
+      tx_hash: txHash || null,
     });
     setSubmitting(false);
     if (error) return toast({ title: 'Error', description: error.message, variant: 'destructive' });

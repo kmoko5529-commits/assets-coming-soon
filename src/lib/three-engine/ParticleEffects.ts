@@ -123,7 +123,7 @@ class ParticleEffectsClass {
     this.materials.set(id, material);
 
     // Store config for updates
-    (points as THREE.Points & { _config: ParticleConfig })._config = {
+    (points as unknown as THREE.Points & { _config: ParticleConfig })._config = {
       ...config,
       gravity,
       friction,

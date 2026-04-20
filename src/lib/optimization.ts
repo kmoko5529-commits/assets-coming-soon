@@ -2,6 +2,8 @@
  * Advanced Optimization Utilities
  * Deep lazy loading, async helpers, and performance optimizations
  */
+import * as React from 'react';
+import * as THREE from 'three';
 
 // ============= ASSET LOADING CACHE =============
 interface AssetCache {
@@ -395,7 +397,7 @@ export function requestIdleCallback(
   }
   
   // Fallback for browsers without requestIdleCallback
-  return window.setTimeout(callback, options?.timeout || 1) as unknown as number;
+  return (typeof window !== 'undefined' ? window.setTimeout(callback, options?.timeout || 1) : 0) as unknown as number;
 }
 
 export function cancelIdleCallback(id: number): void {
@@ -425,8 +427,8 @@ export function createVirtualScrollHelper(
   totalItems: number
 ) {
   const visibleCount = Math.ceil(containerHeight / itemHeight) + 2;
-  const scrollTop = React.createRef(0);
-  
+  const scrollTop = { current: 0 };
+
   return {
     getVisibleRange: (scrollPosition: number) => {
       const startIndex = Math.max(0, Math.floor(scrollPosition / itemHeight) - 1);

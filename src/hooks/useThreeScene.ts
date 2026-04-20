@@ -48,7 +48,9 @@ export function useThreeScene(options: UseThreeSceneOptions = {}): UseThreeScene
       antialias,
       alpha,
       shadows,
-      backgroundColor,
+      backgroundColor: typeof backgroundColor === 'number'
+        ? `#${backgroundColor.toString(16).padStart(6, '0')}`
+        : backgroundColor,
     };
 
     const newScene = sceneManager.createScene(sceneConfig);

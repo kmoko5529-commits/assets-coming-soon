@@ -9,6 +9,7 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Triangle, History } from 'lucide-react';
+import * as THREE from 'three';
 import GameShell from '../GameShell';
 import WinCelebration from '../WinCelebration';
 import DifficultySelector from '../DifficultySelector';

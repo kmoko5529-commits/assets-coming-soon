@@ -334,17 +334,17 @@ class AssetManager {
    */
   unloadCategory(category: string): void {
     const keysToRemove: string[] = [];
-    
-    ASSET_REGISTRY.forEach((def, key) => {
+
+    Object.entries(ASSET_REGISTRY).forEach(([key, def]) => {
       if (def.category === category) {
         keysToRemove.push(key);
       }
     });
-    
+
     keysToRemove.forEach(key => {
       this.loadedAssets.delete(key);
     });
-    
+
     this.preloadedCategories.delete(category);
   }
   

@@ -120,7 +120,21 @@ export function useCrashRound({ gameType, userId }: UseCrashRoundOptions) {
         .from('crash_bets')
         .select('*')
         .eq('round_id', round.id);
-      if (!cancelled && data) setBets(data as CrashBet[]);
+      if (!cancelled && data) {
+        // DB column is `cashed_out_at_multiplier`; client type uses `cashout_multiplier`.
+        const mapped = data.map((b) => ({
+          id: b.id,
+          round_id: b.round_id,
+          user_id: b.user_id,
+          game_type: b.game_type as 'crash' | 'jetpack',
+          bet_amount: Number(b.bet_amount),
+          auto_cashout: b.auto_cashout != null ? Number(b.auto_cashout) : null,
+          cashout_multiplier: b.cashed_out_at_multiplier != null ? Number(b.cashed_out_at_multiplier) : null,
+          payout: Number(b.payout ?? 0),
+          status: b.status as 'placed' | 'cashed' | 'lost',
+        })) as CrashBet[];
+        setBets(mapped);
+      }
     };
     load();
     const channel = supabase
@@ -166,12 +180,12 @@ export function useCrashRound({ gameType, userId }: UseCrashRoundOptions) {
   const placeBet = useCallback(
     async (betAmount: number, autoCashout: number | null) => {
       if (!round) return { error: 'NO_ROUND' };
-      const { data, error } = await supabase.rpc('place_crash_bet', {
+      const { data, error } = await supabase.rpc('place_crash_bet' as never, {
         p_round_id: round.id,
         p_game_type: gameType,
         p_bet_amount: betAmount,
         p_auto_cashout: autoCashout,
-      });
+      } as never);
       if (error) return { error: error.message };
       return data as { ok?: boolean; error?: string; bet_id?: string; balance?: number };
     },
@@ -179,7 +193,7 @@ export function useCrashRound({ gameType, userId }: UseCrashRoundOptions) {
   );
 
   const cashout = useCallback(async (betId: string) => {
-    const { data, error } = await supabase.rpc('cashout_crash_bet', { p_bet_id: betId });
+    const { data, error } = await supabase.rpc('cashout_crash_bet' as never, { p_bet_id: betId } as never);
     if (error) return { error: error.message };
     return data as { ok?: boolean; error?: string; multiplier?: number; payout?: number };
   }, []);

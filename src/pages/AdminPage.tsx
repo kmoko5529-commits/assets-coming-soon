@@ -130,7 +130,7 @@ export default function AdminPage() {
                         <span className="text-xs text-muted-foreground">{d.method}{d.crypto_currency ? ` · ${d.crypto_currency}` : ''}</span>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${d.status === 'approved' ? 'bg-neon-green/10 text-glow-green' : d.status === 'rejected' ? 'bg-neon-red/10 text-glow-red' : 'bg-neon-gold/10 text-glow-gold'}`}>{d.status}</span>
                       </div>
-                      <div className="text-[10px] text-muted-foreground mt-1 font-mono break-all">{d.txid || 'Card payment'}</div>
+                      <div className="text-[10px] text-muted-foreground mt-1 font-mono break-all">{d.tx_hash || 'Card payment'}</div>
                       <div className="text-[10px] text-muted-foreground">{d.created_at ? new Date(d.created_at).toLocaleString() : ''} · user {d.user_id.slice(0, 8)}</div>
                     </div>
                     {d.status === 'pending' && (

@@ -53,15 +53,15 @@ export default function CrashGame3D() {
       toast({ title: 'Wait for next round', description: 'Betting opens during the lobby phase.' });
       return;
     }
-    haptic('medium');
+    haptic('press');
     await placeBet(parseFloat(betAmount), parseFloat(autoCashout));
   }, [user, round, betAmount, autoCashout, placeBet]);
 
   const handleCashout = useCallback(async () => {
     if (!myBet || myBet.cashout_multiplier) return;
-    haptic('heavy');
+    haptic('tap');
     playSound('coin');
-    await cashout();
+    await cashout(myBet.id);
   }, [myBet, cashout]);
 
   // Colors based on multiplier
@@ -286,19 +286,19 @@ export default function CrashGame3D() {
         <div className="flex flex-wrap gap-1 max-w-xs">
           {history.slice(0, 10).map((h, i) => (
             <motion.div
-              key={h.id}
+              key={`${h.round_number}-${i}`}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: i * 0.05 }}
               className={`px-2 py-1 rounded text-xs font-mono ${
-                h.crash_point >= 2
+                h.crash_multiplier >= 2
                   ? 'bg-green-500/20 text-green-400'
-                  : h.crash_point >= 1.5
+                  : h.crash_multiplier >= 1.5
                   ? 'bg-yellow-500/20 text-yellow-400'
                   : 'bg-red-500/20 text-red-400'
               }`}
             >
-              {h.crash_point.toFixed(2)}×
+              {h.crash_multiplier.toFixed(2)}×
             </motion.div>
           ))}
         </div>
@@ -307,7 +307,8 @@ export default function CrashGame3D() {
       {/* Win Celebration */}
       <WinCelebration
         show={!!myBet?.cashout_multiplier && status === 'crashed'}
-        amount={myBet ? parseFloat(betAmount) * myBet.cashout_multiplier : 0}
+        amount={myBet?.cashout_multiplier ? parseFloat(betAmount) * myBet.cashout_multiplier : 0}
+        currency={selectedCurrency}
       />
 
       {/* Settings Modal */}

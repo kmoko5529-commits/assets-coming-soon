@@ -18,9 +18,6 @@ import {
   PerspectiveCamera,
   Stars,
   Cloud,
-  EffectComposer,
-  Bloom,
-  ChromaticAberration
 } from '@react-three/drei';
 import * as THREE from 'three';
 
