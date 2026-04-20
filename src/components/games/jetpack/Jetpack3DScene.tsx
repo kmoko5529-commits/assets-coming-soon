@@ -331,21 +331,26 @@ const JetpackCharacter = memo(function JetpackCharacter({
 // ============= FLOATING CRYSTALS =============
 const FloatingCrystals = memo(function FloatingCrystals() {
   const crystals = useMemo(() => {
-    const result = [];
+    const result: Array<{
+      position: [number, number, number];
+      rotation: [number, number, number];
+      scale: number;
+      color: string;
+    }> = [];
     for (let i = 0; i < CRYSTAL_COUNT; i++) {
       result.push({
         position: [
-          (Math.random() - 0.5) * 30, 
-          Math.random() * 10 + 3, 
-          (Math.random() - 0.5) * 15 - 8
-        ] as [number, number, number],
+          (Math.random() - 0.5) * 30,
+          Math.random() * 10 + 3,
+          (Math.random() - 0.5) * 15 - 8,
+        ],
         rotation: [
-          Math.random() * Math.PI, 
-          Math.random() * Math.PI, 
-          Math.random() * Math.PI
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
         ],
         scale: 0.15 + Math.random() * 0.25,
-        color: ['#4cc9f0', '#ff00ff', '#00ff88'][Math.floor(Math.random() * 3)]
+        color: ['#4cc9f0', '#ff00ff', '#00ff88'][Math.floor(Math.random() * 3)],
       });
     }
     return result;

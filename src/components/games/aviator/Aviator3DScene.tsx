@@ -265,21 +265,26 @@ const Airplane = memo(function Airplane({
 // ============= FLOATING CRYSTALS =============
 const FloatingCrystals = memo(function FloatingCrystals() {
   const crystals = useMemo(() => {
-    const result = [];
+    const result: Array<{
+      position: [number, number, number];
+      rotation: [number, number, number];
+      scale: number;
+      color: string;
+    }> = [];
     for (let i = 0; i < CRYSTAL_COUNT; i++) {
       result.push({
         position: [
-          (Math.random() - 0.5) * 40, 
-          Math.random() * 10 + 3, 
-          (Math.random() - 0.5) * 25 - 12
-        ] as [number, number, number],
+          (Math.random() - 0.5) * 40,
+          Math.random() * 10 + 3,
+          (Math.random() - 0.5) * 25 - 12,
+        ],
         rotation: [
-          Math.random() * Math.PI, 
-          Math.random() * Math.PI, 
-          Math.random() * Math.PI
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
         ],
         scale: 0.1 + Math.random() * 0.2,
-        color: ['#00ffcc', '#ff00ff', '#00ff88', '#ffcc00'][Math.floor(Math.random() * 4)]
+        color: ['#00ffcc', '#ff00ff', '#00ff88', '#ffcc00'][Math.floor(Math.random() * 4)],
       });
     }
     return result;
