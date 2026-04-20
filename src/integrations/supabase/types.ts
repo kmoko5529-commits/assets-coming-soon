@@ -814,6 +814,7 @@ export type Database = {
         Args: { p_note?: string; p_request_id: string }
         Returns: Json
       }
+      cashout_crash_bet: { Args: { p_bet_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -835,6 +836,15 @@ export type Database = {
           p_payout?: number
           p_result?: Json
           p_server_seed?: string
+        }
+        Returns: Json
+      }
+      place_crash_bet: {
+        Args: {
+          p_auto_cashout?: number
+          p_bet_amount: number
+          p_game_type: string
+          p_round_id: string
         }
         Returns: Json
       }
