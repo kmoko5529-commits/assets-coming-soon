@@ -36,6 +36,7 @@ export default function CrashGame3D() {
 
   const status = round?.status ?? 'waiting';
   const crashPoint = round?.crash_multiplier ?? 0;
+  void crashPoint;
 
   // Phase mapping for the 3D scene
   const scenePhase = status === 'running' ? 'running' : 
