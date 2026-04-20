@@ -1,0 +1,692 @@
+/**
+ * Jetpack3DScene - Ultra Premium 3D Casino Experience
+ * Hollywood-quality visuals, particle systems, and animations
+ * Uses uploaded JetpackModel.gltf with fire effects
+ */
+import React, { useRef, useMemo, useCallback, Suspense, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { 
+  Trail, Sparkles, Stars, Float, Billboard, Text, 
+  MeshTransmissionMaterial, useGLTF
+} from '@react-three/drei';
+import * as THREE from 'three';
+
+// Preload the jetpack model
+useGLTF.preload('/models/JetpackModel.gltf');
+
+// ============= ULTRA PREMIUM PARTICLE SYSTEM =============
+function UltraParticles({ position, color, count = 200 }: { position: [number, number, number]; color: string; count?: number }) {
+  const particlesRef = useRef<THREE.Points>(null);
+  const particleCount = count;
+  
+  const positions = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 3;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 3;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 3;
+    }
+    return pos;
+  }, []);
+
+  const colors = useMemo(() => {
+    const cols = new Float32Array(particleCount * 3);
+    const baseColor = new THREE.Color(color);
+    for (let i = 0; i < particleCount; i++) {
+      const variation = 0.5 + Math.random() * 0.5;
+      cols[i * 3] = baseColor.r * variation;
+      cols[i * 3 + 1] = baseColor.g * variation;
+      cols[i * 3 + 2] = baseColor.b * variation;
+    }
+    return cols;
+  }, [color]);
+
+  const sizes = useMemo(() => {
+    const s = new Float32Array(particleCount);
+    for (let i = 0; i < particleCount; i++) {
+      s[i] = 0.02 + Math.random() * 0.08;
+    }
+    return s;
+  }, []);
+
+  useFrame((state, delta) => {
+    if (!particlesRef.current) return;
+    particlesRef.current.rotation.y += delta * 0.5;
+    particlesRef.current.rotation.x += delta * 0.2;
+  });
+
+  return (
+    <points ref={particlesRef} position={position}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={particleCount} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-color" count={particleCount} array={colors} itemSize={3} />
+        <bufferAttribute attach="attributes-size" count={particleCount} array={sizes} itemSize={1} />
+      </bufferGeometry>
+      <pointsMaterial size={0.06} vertexColors transparent opacity={0.9} sizeAttenuation blending={THREE.AdditiveBlending} />
+    </points>
+  );
+}
+
+// ============= ULTRA PREMIUM JETPACK MAN =============
+// ============= JETPACK MODEL LOADER =============
+function JetpackModel({ 
+  phase,
+  flameIntensity = 1 
+}: { 
+  phase: 'waiting' | 'running' | 'crashed' | 'cashed_out';
+  flameIntensity?: number;
+}) {
+  const { scene } = useGLTF('/models/JetpackModel.gltf') as any;
+  const modelRef = useRef<THREE.Group>(null);
+  
+  // Clone and prepare the model
+  const clonedScene = useMemo(() => {
+    const clone = scene.clone(true);
+    clone.traverse((child: any) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    return clone;
+  }, [scene]);
+  
+  // Scale and position adjustment
+  useFrame(() => {
+    if (modelRef.current) {
+      modelRef.current.rotation.y = -Math.PI / 2; // Face forward
+      modelRef.current.scale.set(0.15, 0.15, 0.15);
+    }
+  });
+  
+  return (
+    <group ref={modelRef} position={[0, 0.5, 0]}>
+      <primitive object={clonedScene} />
+    </group>
+  );
+}
+
+// ============= ULTRA PREMIUM JETPACK MAN WITH GLTF MODEL =============
+function UltraJetpackMan({ 
+  multiplier, 
+  phase,
+  onPositionUpdate 
+}: { 
+  multiplier: number; 
+  phase: 'waiting' | 'running' | 'crashed' | 'cashed_out';
+  onPositionUpdate?: (position: THREE.Vector3) => void;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const flameRef = useRef<THREE.Group>(null);
+  const engineGlowRef = useRef<THREE.PointLight>(null);
+  
+  // Dynamic target position
+  const targetPosition = useMemo(() => {
+    if (phase === 'waiting') return new THREE.Vector3(-3, 0.5, 0);
+    if (phase === 'crashed' || phase === 'cashed_out') return new THREE.Vector3(6, 0.3, 0);
+    const x = Math.min(multiplier * 1.5, 6);
+    const y = 0.5 + Math.log(multiplier + 1) * 2.2;
+    return new THREE.Vector3(x, y, 0);
+  }, [multiplier, phase]);
+
+  // Animation loop
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    
+    // Smooth position interpolation
+    groupRef.current.position.lerp(targetPosition, delta * 3);
+    
+    // Flying animation
+    if (phase === 'running') {
+      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 5) * 0.12;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 4) * 0.06;
+      groupRef.current.position.y += Math.sin(state.clock.elapsedTime * 6) * 0.01;
+    }
+    
+    // Crash animation
+    if (phase === 'crashed') {
+      groupRef.current.rotation.z += delta * 10;
+      groupRef.current.rotation.x += delta * 5;
+    }
+    
+    // Engine glow pulse
+    if (engineGlowRef.current) {
+      engineGlowRef.current.intensity = phase === 'running' ? 5 + Math.sin(state.clock.elapsedTime * 12) * 2 : 1;
+    }
+    
+    onPositionUpdate?.(groupRef.current.position.clone());
+  });
+
+  const suitColor = phase === 'crashed' ? '#cc2222' : '#2563eb';
+  const accentColor = phase === 'crashed' ? '#ff6600' : '#ffd700';
+
+  return (
+    <group ref={groupRef}>
+      {/* ULTRA PREMIUM TRAIL */}
+      <Trail width={2} length={15} color={new THREE.Color('#ff6b35')} attenuation={(t) => t * t * t}>
+        <mesh position={[0, -0.6, -0.3]}>
+          <sphereGeometry args={[0.06]} />
+          <meshBasicMaterial color="#ff6b35" />
+        </mesh>
+      </Trail>
+      
+      <Float speed={2.5} rotationIntensity={phase === 'running' ? 0.25 : 0} floatIntensity={0.15}>
+        {/* ===== JETPACK MODEL ===== */}
+        <Suspense fallback={null}>
+          <JetpackModel phase={phase} />
+        </Suspense>
+        
+        {/* ===== FLAME EFFECTS ===== */}
+        {phase === 'running' && (
+          <group ref={flameRef} position={[0, -0.4, -0.25]}>
+            {/* Main flames */}
+            <mesh position={[-0.1, 0, 0]}>
+              <coneGeometry args={[0.1, 0.5, 16]} />
+              <meshBasicMaterial color="#ff6b35" transparent opacity={0.85} />
+            </mesh>
+            <mesh position={[0.1, 0, 0]}>
+              <coneGeometry args={[0.1, 0.5, 16]} />
+              <meshBasicMaterial color="#ffcc00" transparent opacity={0.8} />
+            </mesh>
+            {/* Inner flames */}
+            <mesh position={[-0.1, 0.08, 0]}>
+              <coneGeometry args={[0.05, 0.3, 16]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+            </mesh>
+            <mesh position={[0.1, 0.08, 0]}>
+              <coneGeometry args={[0.05, 0.3, 16]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+            </mesh>
+            {/* Flame lights */}
+            <pointLight ref={engineGlowRef} position={[0, -0.2, 0]} color="#ff6b35" intensity={4} distance={4} />
+            <pointLight position={[0, 0, 0.5]} color="#ffcc00" intensity={3} distance={3} />
+          </group>
+        )}
+        
+        {/* ===== JETPACK ===== */}
+        <mesh position={[0, 0.05, -0.25]} castShadow>
+          <boxGeometry args={[0.3, 0.5, 0.18]} />
+          <meshStandardMaterial 
+            color="#dc2626"
+            metalness={0.9}
+            roughness={0.15}
+            emissive="#7f1d1d"
+            emissiveIntensity={0.3}
+          />
+        </mesh>
+        
+        {/* Jetpack details */}
+        <mesh position={[0, 0.2, -0.25]}>
+          <boxGeometry args={[0.32, 0.08, 0.2]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={1} roughness={0.2} />
+        </mesh>
+        
+        {/* ===== JETPACK TURBINES ===== */}
+        {[[-0.1, -0.2, -0.25], [0.1, -0.2, -0.25]].map((pos, i) => (
+          <group key={i} position={pos}>
+            {/* Turbine housing */}
+            <mesh castShadow>
+              <cylinderGeometry args={[0.08, 0.1, 0.2, 16]} />
+              <meshStandardMaterial color="#1a1a1a" metalness={1} roughness={0.1} />
+            </mesh>
+            
+            {/* Turbine glow ring */}
+            <mesh position={[0, -0.12, 0]}>
+              <torusGeometry args={[0.09, 0.015, 8, 16]} />
+              <meshStandardMaterial color="#ff6b35" emissive="#ff6b35" emissiveIntensity={2} />
+            </mesh>
+          </group>
+        ))}
+        
+        {/* ===== FLAMES ===== */}
+        {phase === 'running' && (
+          <group ref={flameRef} position={[0, -0.4, -0.25]}>
+            {/* Left flame */}
+            <mesh position={[-0.1, 0, 0]}>
+              <coneGeometry args={[0.1, 0.5, 16]} />
+              <meshBasicMaterial color="#ff6b35" transparent opacity={0.85} />
+            </mesh>
+            {/* Right flame */}
+            <mesh position={[0.1, 0, 0]}>
+              <coneGeometry args={[0.1, 0.5, 16]} />
+              <meshBasicMaterial color="#ffcc00" transparent opacity={0.8} />
+            </mesh>
+            {/* Inner flames */}
+            <mesh position={[-0.1, 0.08, 0]}>
+              <coneGeometry args={[0.05, 0.3, 16]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+            </mesh>
+            <mesh position={[0.1, 0.08, 0]}>
+              <coneGeometry args={[0.05, 0.3, 16]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+            </mesh>
+            {/* Flame lights */}
+            <pointLight ref={engineGlowRef} position={[0, -0.2, 0]} color="#ff6b35" intensity={4} distance={4} />
+            <pointLight position={[0, 0, 0.5]} color="#ffcc00" intensity={3} distance={3} />
+          </group>
+        )}
+        
+        {/* ===== ARMS ===== */}
+        {[[-0.25, 0.15, 0], [0.25, 0.15, 0]].map((pos, i) => (
+          <group key={i} position={pos}>
+            {/* Upper arm */}
+            <mesh rotation={[0, 0, i === 0 ? -0.9 : 0.9]} castShadow>
+              <capsuleGeometry args={[0.06, 0.22, 8, 16]} />
+              <meshStandardMaterial color={suitColor} metalness={0.3} roughness={0.5} />
+            </mesh>
+            
+            {/* Forearm */}
+            <mesh position={[i === 0 ? -0.15 : 0.15, -0.1, 0]} rotation={[0, 0, i === 0 ? -0.3 : 0.3]} castShadow>
+              <capsuleGeometry args={[0.05, 0.18, 8, 16]} />
+              <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.3} />
+            </mesh>
+            
+            {/* Hand */}
+            <mesh position={[i === 0 ? -0.25 : 0.25, -0.15, 0]}>
+              <sphereGeometry args={[0.07, 16, 16]} />
+              <meshStandardMaterial color="#ffcc99" metalness={0.1} roughness={0.6} />
+            </mesh>
+            
+            {/* Glove */}
+            <mesh position={[i === 0 ? -0.25 : 0.25, -0.15, 0.03]}>
+              <sphereGeometry args={[0.075, 16, 16]} />
+              <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.3} />
+            </mesh>
+          </group>
+        ))}
+        
+        {/* ===== LEGS ===== */}
+        {[[-0.1, -0.4, 0], [0.1, -0.4, 0]].map((pos, i) => (
+          <group key={i} position={pos}>
+            {/* Thigh */}
+            <mesh castShadow>
+              <capsuleGeometry args={[0.07, 0.28, 8, 16]} />
+              <meshStandardMaterial color={suitColor} metalness={0.3} roughness={0.5} />
+            </mesh>
+            
+            {/* Lower leg */}
+            <mesh position={[0, -0.25, 0]} castShadow>
+              <capsuleGeometry args={[0.06, 0.25, 8, 16]} />
+              <meshStandardMaterial color="#1a1a2e" metalness={0.8} roughness={0.3} />
+            </mesh>
+            
+            {/* Boot */}
+            <mesh position={[0, -0.45, 0.03]} castShadow>
+              <boxGeometry args={[0.12, 0.12, 0.18]} />
+              <meshStandardMaterial 
+                color="#7f1d1d"
+                metalness={0.6}
+                roughness={0.3}
+                emissive="#7f1d1d"
+                emissiveIntensity={0.2}
+              />
+            </mesh>
+            
+            {/* Boot sole */}
+            <mesh position={[0, -0.52, 0.03]}>
+              <boxGeometry args={[0.14, 0.03, 0.2]} />
+              <meshStandardMaterial color="#1a1a1a" metalness={1} roughness={0.2} />
+            </mesh>
+          </group>
+        ))}
+        
+        {/* ===== DECORATIVE ELEMENTS ===== */}
+        {/* Belt */}
+        <mesh position={[0, -0.15, 0.1]}>
+          <torusGeometry args={[0.2, 0.02, 8, 32]} />
+          <meshStandardMaterial color="#ffd700" metalness={1} roughness={0.1} emissive="#ffd700" emissiveIntensity={0.3} />
+        </mesh>
+        
+        {/* Belt buckle */}
+        <mesh position={[0, -0.15, 0.12]}>
+          <boxGeometry args={[0.08, 0.08, 0.03]} />
+          <meshStandardMaterial color="#ffd700" metalness={1} roughness={0.1} emissive="#ffd700" emissiveIntensity={0.5} />
+        </mesh>
+      </Float>
+      
+      {/* ===== PHASE EFFECTS ===== */}
+      
+      {/* RUNNING - Exhaust particles */}
+      {phase === 'running' && (
+        <>
+          <UltraParticles position={[0, -0.7, -0.25]} color="#ff6b35" count={120} />
+          <Sparkles count={60} size={3} position={[0, -0.7, -0.25]} scale={[1.2, 1, 0.6]} speed={2} color="#ffcc00" />
+          <Sparkles count={30} size={2} position={[0, -0.7, -0.25]} scale={[1, 0.8, 0.5]} speed={2.5} color="#ffffff" />
+        </>
+      )}
+      
+      {/* CRASHED - Explosion */}
+      {phase === 'crashed' && (
+        <>
+          <UltraParticles position={[0, 0, 0]} color="#ff3300" count={250} />
+          <Sparkles count={200} size={7} position={[0, 0, 0]} scale={[5, 5, 5]} speed={3.5} color="#ff3333" />
+          <Sparkles count={120} size={4} position={[0, 0, 0]} scale={[4, 4, 4]} speed={2.5} color="#ff6600" />
+          <Sparkles count={60} size={3} position={[0, 0, 0]} scale={[3, 3, 3]} speed={2} color="#ffcc00" />
+          <pointLight position={[0, 0, 0]} color="#ff4400" intensity={12} distance={12} />
+          <pointLight position={[0, 1, 0]} color="#ff6600" intensity={8} distance={8} />
+        </>
+      )}
+      
+      {/* CASHED OUT - Celebration */}
+      {phase === 'cashed_out' && (
+        <>
+          <UltraParticles position={[0, 0, 0]} color="#00ff88" count={180} />
+          <Sparkles count={150} size={5} position={[0, 0, 0]} scale={[4, 4, 4]} speed={2.5} color="#ffd700" />
+          <Sparkles count={80} size={3} position={[0, 0, 0]} scale={[3, 3, 3]} speed={2} color="#00ff88" />
+          <Sparkles count={40} size={2} position={[0, 0, 0]} scale={[2.5, 2.5, 2.5]} speed={1.5} color="#ffffff" />
+          <pointLight position={[0, 0, 0]} color="#ffd700" intensity={7} distance={10} />
+        </>
+      )}
+    </group>
+  );
+}
+
+// ============= ULTRA PREMIUM CITY BACKGROUND ============
+function UltraCityBackground() {
+  const buildings = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < 40; i++) {
+      const x = (Math.random() - 0.5) * 50;
+      const height = Math.random() * 12 + 3;
+      const width = Math.random() * 1.5 + 0.8;
+      const depth = Math.random() * 1.5 + 0.8;
+      const color = ['#1a1a2e', '#16213e', '#0f3460', '#1a1a3e'][Math.floor(Math.random() * 4)];
+      result.push({ x, height, width, depth, color });
+    }
+    return result;
+  }, []);
+
+  return (
+    <group position={[8, 0, -12]}>
+      {buildings.map((b, i) => (
+        <mesh key={i} position={[b.x, b.height / 2 - 0.5, 0]} castShadow>
+          <boxGeometry args={[b.width, b.height, b.depth]} />
+          <meshStandardMaterial 
+            color={b.color}
+            metalness={0.6}
+            roughness={0.4}
+            emissive={b.color}
+            emissiveIntensity={0.15}
+          />
+        </mesh>
+      ))}
+      
+      {/* Building windows */}
+      {buildings.map((b, i) => (
+        <group key={`windows-${i}`} position={[b.x, b.height / 2 - 0.5, 0]}>
+          {Array.from({ length: Math.floor(b.height) }).map((_, j) => (
+            <mesh key={j} position={[0, j * 0.8 - b.height / 2 + 0.4, b.depth / 2 + 0.01]}>
+              <planeGeometry args={[b.width * 0.6, 0.4]} />
+              <meshStandardMaterial 
+                color="#ffd700"
+                emissive="#ffd700"
+                emissiveIntensity={Math.random() > 0.5 ? 0.8 : 0}
+                transparent
+                opacity={0.8}
+              />
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
+// ============= ULTRA PREMIUM GROUND =======
+function UltraGround() {
+  const gridRef = useRef<THREE.GridHelper>(null);
+  
+  useFrame((state) => {
+    if (gridRef.current) {
+      gridRef.current.position.x = state.camera.position.x * 0.3;
+    }
+  });
+
+  return (
+    <>
+      {/* Main ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, -0.5, 0]} receiveShadow>
+        <planeGeometry args={[100, 30]} />
+        <meshStandardMaterial 
+          color="#0a0a18"
+          metalness={0.9}
+          roughness={0.2}
+          emissive="#050510"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      
+      {/* Grid */}
+      <gridHelper 
+        ref={gridRef}
+        args={[100, 60, '#1a1a4a', '#0a0a2a']} 
+        position={[2, -0.48, 0]} 
+      />
+      
+      {/* Glow line on ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, -0.47, 0]}>
+        <planeGeometry args={[100, 0.1]} />
+        <meshBasicMaterial color="#ff6b35" transparent opacity={0.3} />
+      </mesh>
+    </>
+  );
+}
+
+// ============= ULTRA PREMIUM SKY BACKGROUND ============
+function UltraSkyBackground() {
+  return (
+    <>
+      {/* Stars */}
+      <Stars radius={120} depth={60} count={2500} factor={4} saturation={0} fade speed={0.4} />
+      
+      {/* Nebula effect */}
+      <Sparkles count={80} size={12} position={[0, 18, -25]} scale={[40, 25, 10]} speed={0.12} color="#4400ff" />
+      <Sparkles count={60} size={10} position={[15, 12, -20]} scale={[35, 20, 10]} speed={0.18} color="#ff0066" />
+      <Sparkles count={50} size={8} position={[-15, 20, -30]} scale={[30, 18, 10]} speed={0.1} color="#ff6b35" />
+    </>
+  );
+}
+
+// ============= ULTRA PREMIUM MULTIPLIER DISPLAY ============
+function UltraMultiplierDisplay({ multiplier, phase }: { multiplier: number; phase: string }) {
+  const displayRef = useRef<THREE.Group>(null);
+  const glowRef = useRef<THREE.PointLight>(null);
+  
+  useFrame((state) => {
+    if (displayRef.current) {
+      // Position in top-right corner of the view, following camera but offset
+      displayRef.current.position.x = state.camera.position.x + 2.5;
+      displayRef.current.position.y = 4.5;
+    }
+    if (glowRef.current) {
+      glowRef.current.intensity = 2 + Math.sin(state.clock.elapsedTime * 8) * 1;
+    }
+  });
+
+  const color = phase === 'crashed' ? '#ff3333' : phase === 'cashed_out' ? '#00ff88' : '#ffd700';
+  const bgColor = phase === 'crashed' ? '#330000' : phase === 'cashed_out' ? '#003311' : '#332200';
+
+  return (
+    <group ref={displayRef} position={[2.5, 4.5, 2]}>
+      {/* Background glow */}
+      <pointLight ref={glowRef} color={color} intensity={2} distance={4} />
+      
+      <Billboard>
+        {/* Background panel - smaller and semi-transparent */}
+        <mesh position={[0, 0, -0.1]}>
+          <planeGeometry args={[1.8, 0.9]} />
+          <meshStandardMaterial 
+            color={bgColor}
+            transparent
+            opacity={0.6}
+            emissive={bgColor}
+            emissiveIntensity={0.4}
+          />
+        </mesh>
+        
+        {/* Border */}
+        <mesh position={[0, 0, -0.05]}>
+          <ringGeometry args={[0.85, 0.92, 32]} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
+        </mesh>
+        
+        {/* Multiplier text - smaller */}
+        <Text
+          fontSize={0.65}
+          color={color}
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.03}
+          outlineColor="#000000"
+          fontWeight="bold"
+        >
+          {multiplier.toFixed(2)}x
+        </Text>
+        
+        {/* Label */}
+        <Text
+          fontSize={0.18}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+          position={[0, -0.45, 0]}
+          outlineWidth={0.015}
+          outlineColor="#000000"
+        >
+          {phase === 'crashed' ? 'CRASHED!' : phase === 'cashed_out' ? 'CASHED OUT!' : 'MULTIPLIER'}
+        </Text>
+      </Billboard>
+    </group>
+  );
+}
+
+// ============= FLOATING CRYSTALS DECORATION ============
+function FloatingCrystals() {
+  const crystals = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < 12; i++) {
+      result.push({
+        position: [(Math.random() - 0.5) * 35, Math.random() * 7 + 2, (Math.random() - 0.5) * 18 - 9] as [number, number, number],
+        rotation: [Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI],
+        scale: 0.08 + Math.random() * 0.15,
+        color: ['#ff6b35', '#ff00ff', '#00ff88', '#ffd700'][Math.floor(Math.random() * 4)]
+      });
+    }
+    return result;
+  }, []);
+
+  return (
+    <>
+      {crystals.map((crystal, i) => (
+        <Float key={i} speed={1 + Math.random()} rotationIntensity={0.5} floatIntensity={0.5}>
+          <mesh position={crystal.position} rotation={crystal.rotation} scale={crystal.scale}>
+            <octahedronGeometry args={[1, 0]} />
+            <meshStandardMaterial 
+              color={crystal.color}
+              metalness={0.9}
+              roughness={0.1}
+              emissive={crystal.color}
+              emissiveIntensity={0.5}
+              transparent
+              opacity={0.8}
+            />
+          </mesh>
+        </Float>
+      ))}
+    </>
+  );
+}
+
+// ============= MAIN SCENE CONTENT ============
+function SceneContent({ multiplier, phase }: { multiplier: number; phase: 'waiting' | 'running' | 'crashed' | 'cashed_out' }) {
+  const { camera } = useThree();
+  const characterPosition = useRef(new THREE.Vector3());
+
+  useFrame((state, delta) => {
+    const targetX = characterPosition.current.x + 3.5;
+    const targetY = Math.max(2.5, characterPosition.current.y + 1.8);
+    
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, delta * 3);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, delta * 3);
+    camera.lookAt(characterPosition.current);
+  });
+
+  const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
+    characterPosition.current.copy(pos);
+  }, []);
+
+  return (
+    <>
+      {/* ===== ULTRA PREMIUM LIGHTING ===== */}
+      <ambientLight intensity={0.45} color="#5577cc" />
+      
+      {/* Main directional light */}
+      <directionalLight 
+        position={[10, 20, 10]} 
+        intensity={2.2} 
+        color="#ffffff" 
+        castShadow 
+        shadow-mapSize={[4096, 4096]}
+        shadow-camera-far={100}
+        shadow-camera-left={-30}
+        shadow-camera-right={30}
+        shadow-camera-top={30}
+        shadow-camera-bottom={-30}
+      />
+      
+      {/* Accent lights */}
+      <directionalLight position={[-10, 10, -10]} intensity={0.9} color="#ff8844" />
+      <directionalLight position={[0, 5, 15]} intensity={0.6} color="#4cc9f0" />
+      
+      {/* Colored point lights */}
+      <pointLight position={[0, 10, 5]} intensity={2.2} color="#4cc9f0" distance={30} />
+      <pointLight position={[15, 5, 0]} intensity={1.8} color="#ff00ff" distance={25} />
+      <pointLight position={[-15, 5, 0]} intensity={1.8} color="#00ffff" distance={25} />
+      <pointLight position={[0, 3, -10]} intensity={1.2} color="#ff6b35" distance={20} />
+      
+      {/* ===== ENVIRONMENT ===== */}
+      <color attach="background" args={['#030310']} />
+      <fog attach="fog" args={['#030310', 15, 60]} />
+      
+      {/* ===== SCENE ELEMENTS ===== */}
+      <UltraSkyBackground />
+      <UltraGround />
+      <UltraCityBackground />
+      <FloatingCrystals />
+      <UltraMultiplierDisplay multiplier={multiplier} phase={phase} />
+      
+      {/* ===== CHARACTER ===== */}
+      <UltraJetpackMan multiplier={multiplier} phase={phase} onPositionUpdate={handlePositionUpdate} />
+    </>
+  );
+}
+
+// ============= EXPORT ============
+interface Jetpack3DSceneProps {
+  multiplier: number;
+  phase: 'waiting' | 'running' | 'crashed' | 'cashed_out';
+  className?: string;
+}
+
+export default function Jetpack3DScene({ multiplier, phase, className = '' }: Jetpack3DSceneProps) {
+  return (
+    <div className={`w-full h-full ${className}`}>
+      <Canvas
+        shadows
+        dpr={[1, 2]}
+        camera={{ position: [0, 3, 6], fov: 55 }}
+        gl={{ 
+          antialias: true, 
+          alpha: true, 
+          powerPreference: 'high-performance',
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.2
+        }}
+      >
+        <Suspense fallback={null}>
+          <SceneContent multiplier={multiplier} phase={phase} />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
